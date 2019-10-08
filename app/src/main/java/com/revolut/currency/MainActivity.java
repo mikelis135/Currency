@@ -1,19 +1,20 @@
 package com.revolut.currency;
 
+import android.os.Bundle;
+import android.util.Log;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Bundle;
-import android.util.Log;
-
 import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager;
 import com.revolut.currency.adapter.MainAdapter;
 import com.revolut.currency.model.Currency;
 import com.revolut.currency.viewmodel.MainActivityViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -21,7 +22,11 @@ public class MainActivity extends AppCompatActivity {
 
     private MainActivityViewModel mainActivityViewModel;
     RecyclerViewDragDropManager dragMgr;
-    private MainAdapter mainAdapter;
+    RecyclerView recyclerView;
+    MainAdapter mainAdapter;
+    MainActivity context;
+
+    private List<Currency> currencyList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,28 +37,69 @@ public class MainActivity extends AppCompatActivity {
 
         mainActivityViewModel.init();
 
+        context = this;
+
         initializeRecycler();
 
         mainActivityViewModel.getCurrencyMutableLiveData().observe(this, new Observer<List<Currency>>() {
-                    @Override
-                    public void onChanged(List<Currency> currencies) {
 
-                    }
-                });
+            @Override
+            public void onChanged(List<Currency> currencies) {
+
+            }
+        });
+
     }
 
     private void initializeRecycler() {
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+
+        recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
+        currencyList = mainActivityViewModel.getCurrencyMutableLiveData().getValue();
+
+        mainAdapter = new MainAdapter(currencyList, new OnViewChanged() {
+
+            @Override
+            public void onTextChanged(String charSeq) {
+
+                    mainActivityViewModel.setNewCurrencyMutableLiveData(charSeq).observe(context, new Observer<List<Currency>>() {
+                        @Override
+                        public void onChanged(List<Currency> currencies) {
+                            mainAdapter.notifyDataSetChanged();
+                            Log.d("itemchange", currencies.get(0).getRate() + " "+currencies.get(0).getAmount() + " "+ currencies.get(0).getName());
+                        }
+                    });
+            }
+
+            @Override
+            public void onItemClicked(int position) {
+                Currency movedItem = currencyList.remove(position);
+                Log.d("itemclick",  movedItem.getRate() + " "+movedItem.getAmount() + " "+movedItem.getName());
+                currencyList.add(0, movedItem);
+                mainAdapter.notifyDataSetChanged();
+
+
+            }
+        });
+
         dragMgr = new RecyclerViewDragDropManager();
         dragMgr.setInitiateOnMove(true);
-        dragMgr.setInitiateOnLongPress(true);
-
-        mainAdapter = new MainAdapter(mainActivityViewModel.getCurrencyMutableLiveData().getValue());
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
         recyclerView.setAdapter(dragMgr.createWrappedAdapter(mainAdapter));
-
         dragMgr.attachRecyclerView(recyclerView);
 
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        recyclerView.removeAllViewsInLayout();
+        recyclerView.removeAllViews();
+        currencyList.clear();
+        super.onBackPressed();
+    }
+
+    public void clearList(){
+        currencyList.clear();
     }
 
 }

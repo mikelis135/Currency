@@ -10,8 +10,8 @@ import java.util.List;
 public class CurrencyRepository {
 
     private static CurrencyRepository instance;
-    private ArrayList<Currency> dataSet = new ArrayList<>();
-    MutableLiveData<List<Currency>> currencyMutableLiveData;
+    public ArrayList<Currency> dataSet = new ArrayList<>();
+    private MutableLiveData<List<Currency>> currencyMutableLiveData;
 
     public static CurrencyRepository getInstance(){
 
@@ -25,33 +25,46 @@ public class CurrencyRepository {
     public MutableLiveData<List<Currency>> getCurrency(){
         currencyMutableLiveData  = new MutableLiveData<>();
 
-        if (dataSet.size() != 0) {
-
-            //will come here henceforth for consecutive data
+        if (dataSet.size() == 0) {
+            setCurrency();
             currencyMutableLiveData.setValue(dataSet);
             return currencyMutableLiveData;
         }
-
-        //will come here for first getting default values from default data
-        setCurrency();
-        currencyMutableLiveData.setValue(dataSet);
         return currencyMutableLiveData;
     }
 
-    private void setCurrency() {
-        //static data
-        dataSet.add(new Currency(1, "Lagos", ""));
-        dataSet.add(new Currency(2, "London", ""));
-        dataSet.add(new Currency(3, "London", ""));
-    }
+    public MutableLiveData<List<Currency>> getNewCurrency(int id, String name, String amount, String rate){
 
-    public MutableLiveData<List<Currency>> getNewCurrency(int id, String name, String surname){
-
-        dataSet.add(new Currency(id, name, surname));
+        dataSet.add(new Currency(id, name, amount, rate));
 
         //livedata object for setting new data
         currencyMutableLiveData = new MutableLiveData<>();
         currencyMutableLiveData.setValue(dataSet);
         return currencyMutableLiveData;
     }
+
+    public MutableLiveData<List<Currency>> setAmount(String amount){
+
+        for (int i = 0; i < dataSet.size(); i++) {
+
+            Double rate = Double.valueOf(dataSet.get(i).getRate());
+            try {
+                dataSet.get(i).setAmount(String.valueOf(Integer.valueOf(amount) * rate.intValue()));
+            }catch (Exception e){
+                dataSet.get(i).setAmount("");
+            }
+
+        }
+
+        currencyMutableLiveData = new MutableLiveData<>();
+        currencyMutableLiveData.setValue(dataSet);
+        return currencyMutableLiveData;
+    }
+
+    private void setCurrency() {
+        dataSet.add(new Currency(1, "Lagos", "1" , "1.0"));
+        dataSet.add(new Currency(2, "London", "1", "2.0"));
+        dataSet.add(new Currency(3, "London", "1", "3.0"));
+    }
+
 }

@@ -1,40 +1,46 @@
 package com.revolut.currency.adapter;
 
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter;
 import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange;
 import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractDraggableItemViewHolder;
+import com.revolut.currency.OnViewChanged;
 import com.revolut.currency.R;
+import com.revolut.currency.databinding.ListItemBinding;
 import com.revolut.currency.model.Currency;
 
 import java.util.List;
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> implements DraggableItemAdapter<MainAdapter.MyViewHolder> {
 
-    private static final String TAG = "MainAdapter";
     private List<Currency> currencyList;
+    private OnViewChanged onViewChanged;
 
-    public MainAdapter(List<Currency> currencyList) {
+
+    public MainAdapter(List<Currency> currencyList,  OnViewChanged onViewChanged) {
         setHasStableIds(true);
         this.currencyList = currencyList;
+        this.onViewChanged = onViewChanged;
     }
 
     class MyViewHolder extends AbstractDraggableItemViewHolder {
 
-        private TextView name;
+        ListItemBinding listItemBinding;
 
-        MyViewHolder(View itemView) {
-            super(itemView);
-            name = itemView.findViewById(R.id.currencyName);
+        MyViewHolder(@NonNull ListItemBinding itemView) {
+            super(itemView.getRoot());
+            listItemBinding = itemView;
         }
     }
 
@@ -42,23 +48,56 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.d(TAG, "MainAdapter onCreateViewHolder: ");
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
-        return new MyViewHolder(view);
+        ListItemBinding listItemBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.list_item , parent, false);
+        return new MyViewHolder(listItemBinding);
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, final int position) {
-        Log.d(TAG, "MainAdapter: " + currencyList.get(position).getName() + " " + position);
-        holder.name.setText(currencyList.get(position).getName());
-        holder.name.setOnClickListener(new View.OnClickListener() {
+    public void onBindViewHolder(final MyViewHolder holder, final int position) {
+
+        Currency currency = currencyList.get(position);
+        holder.listItemBinding.setCurrency(currency);
+        holder.setIsRecyclable(false);
+        final EditText amountEdit = holder.listItemBinding.getRoot().findViewById(R.id.amount);
+        amountEdit.setSelection(amountEdit.getText().length());
+
+        holder.listItemBinding.getRoot().findViewById(R.id.currencyName).setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
-                Currency movedItem = currencyList.remove(position);
-                currencyList.add(0, movedItem);
-                notifyDataSetChanged();
+
+                if (position != 0) {
+                    onViewChanged.onItemClicked(position);
+                }
             }
         });
+
+        ((EditText) holder.listItemBinding.getRoot().findViewById(R.id.amount)).addTextChangedListener(new TextWatcher() {
+
+            boolean yh = false;
+
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, final int i2) {
+
+//                if (amountEdit.isDirty()) {
+                    if (position == 0) {
+                        onViewChanged.onTextChanged(charSequence.toString());
+//                    }
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+
     }
 
     @Override
@@ -68,7 +107,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
 
     @Override
     public int getItemCount() {
-        return currencyList.size();
+        return null != currencyList ? currencyList.size() : 0;
     }
 
     @Override
@@ -84,8 +123,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
 
     @Override
     public void onMoveItem(int fromPosition, int toPosition) {
-        Currency movedItem = currencyList.remove(fromPosition);
-        currencyList.add(toPosition, movedItem);
+
     }
 
     @Override
@@ -102,6 +140,5 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
     public void onItemDragFinished(int fromPosition, int toPosition, boolean result) {
 
     }
-
 
 }

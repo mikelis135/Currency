@@ -3,24 +3,42 @@ package com.revolut.currency.model;
 public class Currency {
 
     private int id;
-    private String name;
-    private String surname;
+    private String currencyName;
+    private String amount;
+    private String rate;
 
-    public Currency(int id, String name, String surname) {
+    public Currency(int id, String name, String amount, String rate) {
         this.id = id;
-        this.name = name;
-        this.surname = surname;
+        this.currencyName = name;
+        this.amount = amount;
+        this.rate = rate;
     }
 
     public String getName() {
-        return name;
+        return currencyName;
     }
 
-    public String getSurname() {
-        return surname;
+    public String getAmount() {
+        return amount;
+    }
+
+    public void setAmount(String amount) {
+        this.amount = amount;
     }
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getRate() {
+        return rate;
+    }
+
+    public void setRate(String rate) {
+        this.rate = rate;
     }
 }
