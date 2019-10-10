@@ -58,7 +58,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
 
         Currency currency = currencyList.get(position);
         holder.listItemBinding.setCurrency(currency);
-        holder.setIsRecyclable(false);
         final EditText amountEdit = holder.listItemBinding.getRoot().findViewById(R.id.amount);
         amountEdit.setSelection(amountEdit.getText().length());
 

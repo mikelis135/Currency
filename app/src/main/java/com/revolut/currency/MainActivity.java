@@ -2,6 +2,7 @@ package com.revolut.currency;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
@@ -41,13 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
         initializeRecycler();
 
-        mainActivityViewModel.getCurrencyMutableLiveData().observe(this, new Observer<List<Currency>>() {
 
-            @Override
-            public void onChanged(List<Currency> currencies) {
-                Log.d("amount", currencies.get(0).getAmount());
-            }
-        });
 
     }
 
@@ -55,6 +50,14 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
+        mainActivityViewModel.getCurrencyMutableLiveData().observe(this, new Observer<List<Currency>>() {
+
+            @Override
+            public void onChanged(List<Currency> currencies) {
+
+            }
+        });
+
         currencyList = mainActivityViewModel.getCurrencyMutableLiveData().getValue();
 
         mainAdapter = new MainAdapter(currencyList, new OnViewChanged() {
@@ -74,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onChanged(List<Currency> currencies) {
-                        Log.d("amount", currencies.get(0).getAmount());
+                        Log.d("amount", currencies.get(0).getRate());
                     }
                 });
             }
@@ -82,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClicked(int position) {
                 Currency movedItem = currencyList.remove(position);
-                Log.d("itemclick",  movedItem.getRate() + " "+movedItem.getAmount() + " "+movedItem.getName());
+                Log.d("itemclick",  movedItem.getRate() + " "+movedItem.getRate() + " "+movedItem.getName());
                 currencyList.add(0, movedItem);
                 mainAdapter.notifyDataSetChanged();
 
@@ -94,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         dragMgr.setInitiateOnMove(true);
         recyclerView.setAdapter(dragMgr.createWrappedAdapter(mainAdapter));
         dragMgr.attachRecyclerView(recyclerView);
+        mainAdapter.notifyDataSetChanged();
 
     }
 

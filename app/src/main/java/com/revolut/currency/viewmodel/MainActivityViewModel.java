@@ -26,7 +26,7 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public LiveData<List<Currency>> getNewCurrencyMutableLiveData(Currency Currency) {
-        return currencyRepository.getNewCurrency(Currency.getId(), Currency.getName(), Currency.getAmount(), Currency.getRate());
+        return currencyRepository.getNewCurrency(Currency.getId(), Currency.getName(), Currency.getRate());
     }
 
     public LiveData<List<Currency>> setNewCurrencyMutableLiveData(String amount) {

@@ -9,6 +9,6 @@ import retrofit2.http.Query;
 public interface RateService {
 
     @GET("/latest")
-    Call<Rates> getRates(@Query("base") String country);
+    Call<Object> getRates(@Query("base") String country);
 
 }

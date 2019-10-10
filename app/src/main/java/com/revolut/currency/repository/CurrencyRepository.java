@@ -5,15 +5,10 @@ import android.util.Log;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.revolut.currency.model.Countries;
 import com.revolut.currency.model.Currency;
-import com.revolut.currency.model.Rates;
 import com.revolut.currency.remote.RateConfig;
 import com.revolut.currency.remote.RateService;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -44,18 +39,13 @@ public class CurrencyRepository {
         return instance;
     }
 
-     public void setRate(String country){
+     public MutableLiveData<List<Currency>> getCurrency(){
 
-        rateService.getRates(country).enqueue(new Callback<Rates>() {
+         final int[] id = {0};
+
+        rateService.getRates("EUR").enqueue(new Callback<Object>() {
             @Override
-            public void onResponse(Call<Rates> call, Response<Rates> response) {
-
-//                if (response != null) {
-//                    Rates rates = response.body();
-//                    Log.d("okh", rates.toString());
-//
-//                    dataSet.set(new Currency(rates.getCountries().))
-//                }
+            public void onResponse(Call<Object> call, Response<Object> response) {
 
                     try {
                         Gson gson = new Gson();
@@ -71,45 +61,51 @@ public class CurrencyRepository {
                                 if (eventToMessagesJson == null) {
                                     continue;
                                 }
-                                // Get the eventId --> message-list mapping
+
                                 Map<String, List<String>> eventNameToMessages = new HashMap<String, List<String>>();
                                 Iterator<String> eventNames = eventToMessagesJson.keys();
+
                                 while (eventNames.hasNext()) {
+
                                     String eventName = eventNames.next();
-                                    Log.d("okh",  eventToMessagesJson.get(eventName).toString());
-                                    Log.d("okh", " "+ eventName);
+                                    id[0] = id[0] + 1;
+
+                                    dataSet.add(new Currency(id[0], eventName, eventToMessagesJson.get(eventName).toString()));
                                 }
+
                             }
                         }
                     } catch (JSONException ex) {
                         ex.printStackTrace();
                     }
                 }
-                // Get subscriber event specs.
-
-
             @Override
-            public void onFailure(Call<Rates> call, Throwable t) {
+            public void onFailure(Call<Object> call, Throwable t) {
                 Log.d("okh", "onResponse: "+ t.getMessage());
             }
         });
-    }
 
-    public MutableLiveData<List<Currency>> getCurrency(){
-        setRate("EUR");
-        currencyMutableLiveData  = new MutableLiveData<>();
-
-        if (dataSet.size() == 0) {
-            setCurrency();
-            currencyMutableLiveData.setValue(dataSet);
-            return currencyMutableLiveData;
-        }
+         currencyMutableLiveData = new MutableLiveData<>();
+         currencyMutableLiveData.setValue(dataSet);
         return currencyMutableLiveData;
     }
 
-    public MutableLiveData<List<Currency>> getNewCurrency(int id, String name, String amount, String rate){
+//    public MutableLiveData<List<Currency>> getCurrency(){
+//
+//        currencyMutableLiveData  = new MutableLiveData<>();
+//
+//        if (dataSet.size() == 0) {
+////            setCurrency();
+//            setRate("EUR");
+//            currencyMutableLiveData.setValue(dataSet);
+//            return currencyMutableLiveData;
+//        }
+//        return currencyMutableLiveData;
+//    }
 
-        dataSet.add(new Currency(id, name, amount, rate));
+    public MutableLiveData<List<Currency>> getNewCurrency(int id, String name, String rate){
+
+        dataSet.add(new Currency(id, name, rate));
 
         //livedata object for setting new data
         currencyMutableLiveData = new MutableLiveData<>();
@@ -123,9 +119,9 @@ public class CurrencyRepository {
 
             Double rate = Double.valueOf(dataSet.get(i).getRate());
             try {
-                dataSet.get(i).setAmount(String.valueOf(Integer.valueOf(amount) * rate.intValue()));
+                dataSet.get(i).setRate(String.valueOf(Integer.valueOf(amount) * rate.intValue()));
             }catch (Exception e){
-                dataSet.get(i).setAmount("");
+                dataSet.get(i).setRate("");
             }
 
         }
@@ -136,9 +132,9 @@ public class CurrencyRepository {
     }
 
     private void setCurrency() {
-        dataSet.add(new Currency(1,  "Lagos", "1" , "1.0"));
-        dataSet.add(new Currency(2, "London", "1", "2.0"));
-        dataSet.add(new Currency(3, "London", "1", "3.0"));
+        dataSet.add(new Currency(1,  "Lagos",  "1.0"));
+        dataSet.add(new Currency(2, "London",  "2.0"));
+        dataSet.add(new Currency(3, "London",  "3.0"));
     }
 
 }
