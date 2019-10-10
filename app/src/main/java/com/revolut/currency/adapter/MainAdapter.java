@@ -2,6 +2,7 @@ package com.revolut.currency.adapter;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,13 +69,12 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
 
                 if (position != 0) {
                     onViewChanged.onItemClicked(position);
+                    Log.d("amount", amountEdit.getEditableText().toString());
                 }
             }
         });
 
         ((EditText) holder.listItemBinding.getRoot().findViewById(R.id.amount)).addTextChangedListener(new TextWatcher() {
-
-            boolean yh = false;
 
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {

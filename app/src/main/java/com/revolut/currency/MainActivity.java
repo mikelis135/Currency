@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onChanged(List<Currency> currencies) {
-
+                Log.d("amount", currencies.get(0).getAmount());
             }
         });
 
@@ -62,13 +62,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(String charSeq) {
 
-                    mainActivityViewModel.setNewCurrencyMutableLiveData(charSeq).observe(context, new Observer<List<Currency>>() {
-                        @Override
-                        public void onChanged(List<Currency> currencies) {
-                            mainAdapter.notifyDataSetChanged();
-                            Log.d("itemchange", currencies.get(0).getRate() + " "+currencies.get(0).getAmount() + " "+ currencies.get(0).getName());
-                        }
-                    });
+//                    mainActivityViewModel.setNewCurrencyMutableLiveData(charSeq).observe(context, new Observer<List<Currency>>() {
+//                        @Override
+//                        public void onChanged(List<Currency> currencies) {
+//                            mainAdapter.notifyDataSetChanged();
+//                            Log.d("itemchange", currencies.get(0).getRate() + " "+currencies.get(0).getAmount() + " "+ currencies.get(0).getName());
+//                        }
+//                    });
+
+                mainActivityViewModel.getCurrencyMutableLiveData().observe(context, new Observer<List<Currency>>() {
+
+                    @Override
+                    public void onChanged(List<Currency> currencies) {
+                        Log.d("amount", currencies.get(0).getAmount());
+                    }
+                });
             }
 
             @Override
