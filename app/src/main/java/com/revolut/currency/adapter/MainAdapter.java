@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -59,6 +60,11 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
         Currency currency = currencyList.get(position);
         holder.listItemBinding.setCurrency(currency);
         final EditText amountEdit = holder.listItemBinding.getRoot().findViewById(R.id.amount);
+        TextView textView = holder.listItemBinding.getRoot().findViewById(R.id.currencyName);
+
+        amountEdit.setText(currency.getRate());
+        textView.setText(currency.getName());
+
         amountEdit.setSelection(amountEdit.getText().length());
 
         holder.listItemBinding.getRoot().findViewById(R.id.currencyName).setOnClickListener(new View.OnClickListener() {
@@ -83,10 +89,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, final int i2) {
 
-//                if (amountEdit.isDirty()) {
                     if (position == 0) {
                         onViewChanged.onTextChanged(charSequence.toString());
-//                    }
                 }
             }
 

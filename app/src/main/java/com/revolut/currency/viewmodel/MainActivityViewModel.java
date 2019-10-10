@@ -19,6 +19,9 @@ public class MainActivityViewModel extends ViewModel {
             currencyRepository = CurrencyRepository.getInstance();
             currencyMutableLiveData = currencyRepository.getCurrency();
         }
+        else{
+            return;
+        }
     }
 
     public LiveData<List<Currency>> getCurrencyMutableLiveData() {

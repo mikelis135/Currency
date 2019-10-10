@@ -42,7 +42,7 @@ public class CurrencyRepository {
      public MutableLiveData<List<Currency>> getCurrency(){
 
          final int[] id = {0};
-
+         currencyMutableLiveData = new MutableLiveData<>();
         rateService.getRates("EUR").enqueue(new Callback<Object>() {
             @Override
             public void onResponse(Call<Object> call, Response<Object> response) {
@@ -78,6 +78,9 @@ public class CurrencyRepository {
                     } catch (JSONException ex) {
                         ex.printStackTrace();
                     }
+
+                currencyMutableLiveData.postValue(dataSet);
+
                 }
             @Override
             public void onFailure(Call<Object> call, Throwable t) {
@@ -85,8 +88,8 @@ public class CurrencyRepository {
             }
         });
 
-         currencyMutableLiveData = new MutableLiveData<>();
-         currencyMutableLiveData.setValue(dataSet);
+
+
         return currencyMutableLiveData;
     }
 
@@ -95,8 +98,7 @@ public class CurrencyRepository {
 //        currencyMutableLiveData  = new MutableLiveData<>();
 //
 //        if (dataSet.size() == 0) {
-////            setCurrency();
-//            setRate("EUR");
+//            setCurrency();
 //            currencyMutableLiveData.setValue(dataSet);
 //            return currencyMutableLiveData;
 //        }
