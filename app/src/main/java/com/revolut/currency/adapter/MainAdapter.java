@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,9 @@ import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter;
 import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange;
 import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractDraggableItemViewHolder;
@@ -28,6 +32,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
 
     private List<Currency> currencyList;
     private OnViewChanged onViewChanged;
+    private String storyUrl = "http://www.geognos.com/api/en/countries/flag/";
 
 
     public MainAdapter(List<Currency> currencyList,  OnViewChanged onViewChanged) {
@@ -60,12 +65,22 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
         Currency currency = currencyList.get(position);
         holder.listItemBinding.setCurrency(currency);
         final EditText amountEdit = holder.listItemBinding.getRoot().findViewById(R.id.amount);
+        final ImageView countryFlag = holder.listItemBinding.getRoot().findViewById(R.id.countryFlag);
         TextView textView = holder.listItemBinding.getRoot().findViewById(R.id.currencyName);
 //
 //        amountEdit.setText(currency.getRate());
 //        textView.setText(currency.getName());
 
         amountEdit.setSelection(amountEdit.getText().length());
+        RequestOptions requestOptions = new RequestOptions();
+        requestOptions.placeholder(R.drawable.ic_launcher_background);
+        requestOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
+
+        Glide.with(holder.itemView.getContext())
+                .setDefaultRequestOptions(requestOptions)
+                .load(storyUrl+currency.getName().substring(0, 2)+".png")
+                .thumbnail( 0.5f )
+                .into(countryFlag);
 
         holder.listItemBinding.getRoot().findViewById(R.id.holderLayout).setOnClickListener(new View.OnClickListener() {
 
