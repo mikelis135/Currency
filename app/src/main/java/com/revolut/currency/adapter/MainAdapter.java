@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,20 +23,20 @@ import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractDraggableItemView
 import com.revolut.currency.OnViewChanged;
 import com.revolut.currency.R;
 import com.revolut.currency.databinding.ListItemBinding;
-import com.revolut.currency.model.Currency;
+import com.revolut.currency.model.Country;
 
 import java.util.List;
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> implements DraggableItemAdapter<MainAdapter.MyViewHolder> {
 
-    private List<Currency> currencyList;
+    private List<Country> countryList;
     private OnViewChanged onViewChanged;
     private String storyUrl = "http://www.geognos.com/api/en/countries/flag/";
 
 
-    public MainAdapter(List<Currency> currencyList,  OnViewChanged onViewChanged) {
+    public MainAdapter(List<Country> countryList, OnViewChanged onViewChanged) {
         setHasStableIds(true);
-        this.currencyList = currencyList;
+        this.countryList = countryList;
         this.onViewChanged = onViewChanged;
     }
 
@@ -62,14 +61,10 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
 
-        Currency currency = currencyList.get(position);
-        holder.listItemBinding.setCurrency(currency);
+        Country country = countryList.get(position);
+        holder.listItemBinding.setCurrency(country);
         final EditText amountEdit = holder.listItemBinding.getRoot().findViewById(R.id.amount);
         final ImageView countryFlag = holder.listItemBinding.getRoot().findViewById(R.id.countryFlag);
-        TextView textView = holder.listItemBinding.getRoot().findViewById(R.id.currencyName);
-//
-//        amountEdit.setText(currency.getRate());
-//        textView.setText(currency.getName());
 
         amountEdit.setSelection(amountEdit.getText().length());
         RequestOptions requestOptions = new RequestOptions();
@@ -78,7 +73,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
 
         Glide.with(holder.itemView.getContext())
                 .setDefaultRequestOptions(requestOptions)
-                .load(storyUrl+currency.getName().substring(0, 2)+".png")
+                .load(storyUrl+ country.getCurrencyName().substring(0, 2)+".png")
                 .thumbnail( 0.5f )
                 .into(countryFlag);
 
@@ -120,12 +115,12 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
 
     @Override
     public long getItemId(int position) {
-        return currencyList.get(position).getId();
+        return countryList.get(position).getId();
     }
 
     @Override
     public int getItemCount() {
-        return null != currencyList ? currencyList.size() : 0;
+        return null != countryList ? countryList.size() : 0;
     }
 
     @Override

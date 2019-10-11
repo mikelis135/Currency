@@ -5,19 +5,15 @@ import android.content.Intent;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
-import com.revolut.currency.model.Currency;
-import com.revolut.currency.repository.CurrencyRepository;
+import com.revolut.currency.repository.CountryRepository;
 
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class RateService extends Service {
 
-    private CurrencyRepository currencyRepository;
+    private CountryRepository countryRepository;
     public static String country;
     public static String amount;
     Timer timer;
@@ -44,8 +40,8 @@ public class RateService extends Service {
     }
 
     public void getNewCurrencyMutableLiveData() {
-        currencyRepository = CurrencyRepository.getInstance();
-       currencyRepository.getNewCurrency(country, amount);
+        countryRepository = CountryRepository.getInstance();
+       countryRepository.getNewCurrency(country, amount);
     }
 
     @Override

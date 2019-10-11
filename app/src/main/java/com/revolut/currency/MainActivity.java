@@ -3,7 +3,6 @@ package com.revolut.currency;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
@@ -14,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager;
 import com.revolut.currency.adapter.MainAdapter;
-import com.revolut.currency.model.Currency;
+import com.revolut.currency.model.Country;
 import com.revolut.currency.remote.RateService;
 import com.revolut.currency.viewmodel.MainActivityViewModel;
 
@@ -31,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     MainAdapter mainAdapter;
     MainActivity context;
 
-    private List<Currency> currencyList = new ArrayList<>();
+    private List<Country> countryList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,11 +43,11 @@ public class MainActivity extends AppCompatActivity {
 
         context = this;
 
-        mainActivityViewModel.getCurrencyMutableLiveData().observe(this, new Observer<List<Currency>>() {
+        mainActivityViewModel.getCurrencyMutableLiveData().observe(this, new Observer<List<Country>>() {
 
             @Override
-            public void onChanged(List<Currency> currencies) {
-                currencyList.addAll(currencies);
+            public void onChanged(List<Country> currencies) {
+                countryList.addAll(currencies);
                 mainAdapter.notifyDataSetChanged();
             }
 
@@ -62,24 +61,24 @@ public class MainActivity extends AppCompatActivity {
     private void setupRecyclerView() {
         if (mainAdapter == null) {
 
-//            currencyList = mainActivityViewModel.getCurrencyMutableLiveData().getValue();
-            mainAdapter = new MainAdapter(currencyList, new OnViewChanged() {
+//            countryList = mainActivityViewModel.getCurrencyMutableLiveData().getValue();
+            mainAdapter = new MainAdapter(countryList, new OnViewChanged() {
 
                 @Override
                 public void onTextChanged(String charSeq) {
 
-//                    mainActivityViewModel.setNewCurrencyMutableLiveData(charSeq).observe(context, new Observer<List<Currency>>() {
+//                    mainActivityViewModel.setNewCurrencyMutableLiveData(charSeq).observe(context, new Observer<List<Country>>() {
 //                        @Override
-//                        public void onChanged(List<Currency> currencies) {
+//                        public void onChanged(List<Country> currencies) {
 //                            mainAdapter.notifyDataSetChanged();
 //                            Log.d("itemchange", currencies.get(0).getRate() + " "+currencies.get(0).getAmount() + " "+ currencies.get(0).getName());
 //                        }
 //                    });
 
-                    mainActivityViewModel.getCurrencyMutableLiveData().observe(context, new Observer<List<Currency>>() {
+                    mainActivityViewModel.getCurrencyMutableLiveData().observe(context, new Observer<List<Country>>() {
 
                         @Override
-                        public void onChanged(List<Currency> currencies) {
+                        public void onChanged(List<Country> currencies) {
                             Log.d("amount", currencies.get(0).getRate());
                         }
                     });
@@ -87,9 +86,9 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onItemClicked(int position) {
-                    Currency movedItem = currencyList.remove(position);
-                    Log.d("itemclick",  movedItem.getRate() + " "+movedItem.getRate() + " "+movedItem.getName());
-                    currencyList.add(0, movedItem);
+                    Country movedItem = countryList.remove(position);
+                    Log.d("itemclick",  movedItem.getRate() + " "+movedItem.getRate() + " "+movedItem.getCountryName());
+                    countryList.add(0, movedItem);
                     mainAdapter.notifyDataSetChanged();
 
 
@@ -111,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
         stopService(new Intent(this, RateService.class));
         recyclerView.removeAllViewsInLayout();
         recyclerView.removeAllViews();
-        currencyList.clear();
+        countryList.clear();
 
         super.onBackPressed();
     }
@@ -123,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clearList(){
-        currencyList.clear();
+        countryList.clear();
     }
 
 }
