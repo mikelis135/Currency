@@ -51,9 +51,11 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     //Api Call Using Retrofit and Logger
-    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.squareup.retrofit2:retrofit:2.6.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1'
-    implementation 'com.google.code.gson:gson:2.8.6'
+
+    //circular Image
+    implementation 'com.mikhaellopez:circularimageview:3.0.2'
 }

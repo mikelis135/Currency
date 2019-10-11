@@ -67,7 +67,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
 
         amountEdit.setSelection(amountEdit.getText().length());
 
-        holder.listItemBinding.getRoot().findViewById(R.id.currencyName).setOnClickListener(new View.OnClickListener() {
+        holder.listItemBinding.getRoot().findViewById(R.id.holderLayout).setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
