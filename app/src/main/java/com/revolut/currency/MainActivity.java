@@ -1,5 +1,6 @@
 package com.revolut.currency;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.h6ah4i.android.widget.advrecyclerview.draggable.RecyclerViewDragDropManager;
 import com.revolut.currency.adapter.MainAdapter;
 import com.revolut.currency.model.Currency;
+import com.revolut.currency.remote.RateService;
 import com.revolut.currency.viewmodel.MainActivityViewModel;
 
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private MainActivityViewModel mainActivityViewModel;
+    RateService rateService;
     RecyclerViewDragDropManager dragMgr;
     RecyclerView recyclerView;
     MainAdapter mainAdapter;
@@ -50,70 +53,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
-//        initializeRecycler();
+
+        RateService.country = "BRl";
         setupRecyclerView();
     }
 
-//    private void initializeRecycler() {
-//
-//
-//        recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
-//        mainActivityViewModel.getCurrencyMutableLiveData().observe(this, new Observer<List<Currency>>() {
-//
-//            @Override
-//            public void onChanged(List<Currency> currencies) {
-//                currencyList.addAll(currencies);
-//                mainAdapter.notifyDataSetChanged();
-//                dragMgr = new RecyclerViewDragDropManager();
-//                dragMgr.setInitiateOnMove(true);
-//                recyclerView.setAdapter(dragMgr.createWrappedAdapter(mainAdapter));
-//                dragMgr.attachRecyclerView(recyclerView);
-//                mainAdapter.notifyDataSetChanged();
-//            }
-//        });
-//
-////        currencyList = mainActivityViewModel.getCurrencyMutableLiveData().getValue();
-//
-//        mainAdapter = new MainAdapter(currencyList, new OnViewChanged() {
-//
-//            @Override
-//            public void onTextChanged(String charSeq) {
-//
-////                    mainActivityViewModel.setNewCurrencyMutableLiveData(charSeq).observe(context, new Observer<List<Currency>>() {
-////                        @Override
-////                        public void onChanged(List<Currency> currencies) {
-////                            mainAdapter.notifyDataSetChanged();
-////                            Log.d("itemchange", currencies.get(0).getRate() + " "+currencies.get(0).getAmount() + " "+ currencies.get(0).getName());
-////                        }
-////                    });
-//
-//                mainActivityViewModel.getCurrencyMutableLiveData().observe(context, new Observer<List<Currency>>() {
-//
-//                    @Override
-//                    public void onChanged(List<Currency> currencies) {
-//                        Log.d("amount", currencies.get(0).getRate());
-//                    }
-//                });
-//            }
-//
-//            @Override
-//            public void onItemClicked(int position) {
-//                Currency movedItem = currencyList.remove(position);
-//                Log.d("itemclick",  movedItem.getRate() + " "+movedItem.getRate() + " "+movedItem.getName());
-//                currencyList.add(0, movedItem);
-//                mainAdapter.notifyDataSetChanged();
-//
-//
-//            }
-//        });
-//
-//        dragMgr = new RecyclerViewDragDropManager();
-//        dragMgr.setInitiateOnMove(true);
-//        recyclerView.setAdapter(dragMgr.createWrappedAdapter(mainAdapter));
-//        dragMgr.attachRecyclerView(recyclerView);
-//        mainAdapter.notifyDataSetChanged();
-//
-//    }
 
     private void setupRecyclerView() {
         if (mainAdapter == null) {
@@ -156,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             recyclerView.setAdapter(mainAdapter);
             recyclerView.setItemAnimator(new DefaultItemAnimator());
             recyclerView.setNestedScrollingEnabled(true);
-//            mainAdapter.notifyDataSetChanged();
+
         } else {
             mainAdapter.notifyDataSetChanged();
         }
@@ -164,10 +108,18 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        stopService(new Intent(this, RateService.class));
         recyclerView.removeAllViewsInLayout();
         recyclerView.removeAllViews();
         currencyList.clear();
+
         super.onBackPressed();
+    }
+
+    @Override
+    public void finish() {
+        stopService(new Intent(this, RateService.class));
+        super.finish();
     }
 
     public void clearList(){

@@ -61,9 +61,9 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
         holder.listItemBinding.setCurrency(currency);
         final EditText amountEdit = holder.listItemBinding.getRoot().findViewById(R.id.amount);
         TextView textView = holder.listItemBinding.getRoot().findViewById(R.id.currencyName);
-
-        amountEdit.setText(currency.getRate());
-        textView.setText(currency.getName());
+//
+//        amountEdit.setText(currency.getRate());
+//        textView.setText(currency.getName());
 
         amountEdit.setSelection(amountEdit.getText().length());
 
