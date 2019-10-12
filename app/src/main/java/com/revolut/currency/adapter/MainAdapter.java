@@ -93,7 +93,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
 
             amountEdit.addTextChangedListener(new TextWatcher() {
 
-
+                String amountBefore;
                 @Override
                 public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -102,9 +102,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
                 @Override
                 public void onTextChanged(CharSequence charSequence, int i, int i1, final int i2) {
 
-                    if (isGotAmount){
-                        Log.d("okh", "onBindViewHolder: " +  charSequence.toString());
-                        getCurrentRate(countryList.get(1).getRate().get(0), charSequence.toString());
+                    if (isGotAmount && !charSequence.toString().isEmpty()){
+                        getCurrentRate(countryList.get(0).getRate().get(0), countryList.get(1).getRate().get(0), charSequence.toString());
                         isGotAmount = false;
                     }
                 }
@@ -137,14 +136,14 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
         return amountMutableLiveData;
     }
 
-    public MutableLiveData<HashMap<String, String>> getCurrentRate(String rate, String amount) {
+    public MutableLiveData<HashMap<String, String>> getCurrentRate(String amountBefore, String rate, String amount) {
 
             String [] rates = new String[2];
-//        currencyList.get(1).getRate().add(realAmount);
+
         if (!amount.isEmpty()) {
-            Log.d("okh", "getCurrentRate: " + Double.valueOf(rate)  +" * "+ Double.valueOf(amount)+  " = "+Double.valueOf(rate) * Double.valueOf(amount));
+            Log.d("okh", "getCurrentRate: (" + Double.valueOf(rate)  +"/"+Double.valueOf(amount)+") * "+ Double.valueOf(amountBefore)+  " = "+(Double.valueOf(rate) * Double.valueOf(amount))/  Double.valueOf(amountBefore));
             rates[0] = rate;
-            rates[1] = String.format(Locale.UK, "%.2f", Double.valueOf(rate) * Double.valueOf(amount));
+            rates[1] = String.format(Locale.UK, "%.2f", (Double.valueOf(rate) * Double.valueOf(amount))/  Double.valueOf(amountBefore));
             countryList.get(1).setRate(Arrays.asList(rates));
             Log.d("okh", "ratelist: "+ rates[0]+ " "+ rates[1]);
             notifyItemChanged(1);
