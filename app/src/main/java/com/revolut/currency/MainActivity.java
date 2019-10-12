@@ -30,13 +30,8 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     MainAdapter mainAdapter;
     MainActivity context;
-    private boolean isGotAmount;
-    List<String> amount = new ArrayList<>();
-    List<String> countryTag = new ArrayList<>();
 
     private ArrayList<Country> countryList = new ArrayList<>();
-    private String amounts;
-    private String country;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onItemClicked(int position) {
                     Country movedItem = countryList.remove(position);
-                    Log.d("itemclick",  movedItem.getRate() + " "+movedItem.getRate() + " "+movedItem.getCountryName());
                     countryList.add(0, movedItem);
                     mainAdapter.notifyDataSetChanged();
                 }
@@ -114,10 +108,6 @@ public class MainActivity extends AppCompatActivity {
     public void finish() {
         stopService(new Intent(this, RateService.class));
         super.finish();
-    }
-
-    public void clearList(){
-        countryList.clear();
     }
 
 }

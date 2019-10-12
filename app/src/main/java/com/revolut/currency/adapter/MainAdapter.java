@@ -2,7 +2,6 @@ package com.revolut.currency.adapter;
 
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +24,6 @@ import com.revolut.currency.OnViewChanged;
 import com.revolut.currency.R;
 import com.revolut.currency.databinding.ListItemBinding;
 import com.revolut.currency.model.Country;
-import com.revolut.currency.repository.CountryRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +34,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
 
     private ArrayList<Country> countryList;
     private OnViewChanged onViewChanged;
-    private CountryRepository countryRepository;
     private EditText amountEdit;
     private MutableLiveData<HashMap<String, String>> amountMutableLiveData = new MutableLiveData<>();
     private String storyUrl = "http://www.geognos.com/api/en/countries/flag/";
@@ -86,12 +83,9 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
         });
 
         if (position == 0) {
-            Log.d("okh", "onBindViewHolder: " +  amountEdit.getEditableText().toString());
-
 
             amountEdit.addTextChangedListener(new TextWatcher() {
 
-                String amountBefore;
                 @Override
                 public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -101,7 +95,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
                 public void onTextChanged(CharSequence charSequence, int i, int i1, final int i2) {
 
                     if (isGotAmount && !charSequence.toString().isEmpty()){
-//                        getCurrentRate(countryList.get(0).getRate().get(0), countryList.get(1).getRate().get(0), charSequence.toString());
                         getCurrentRate(countryList.get(0).getRate().get(0), countryList, charSequence.toString());
                         isGotAmount = false;
                     }
@@ -136,20 +129,15 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
 
     public MutableLiveData<HashMap<String, String>> getCurrentRate(String toprate, ArrayList<Country> countryArrayList, String amount) {
 
-
-
         if (!amount.isEmpty()) {
 
             for (int i = 1; i <countryArrayList.size() ; i++) {
                 String [] rates = new String[2];
-                Log.d("okh", "getCurrentRate: (" + Double.valueOf(countryArrayList.get(i).getRate().get(0)) + "/" + Double.valueOf(amount) + ") * " + Double.valueOf(toprate) + " = " + (Double.valueOf(countryArrayList.get(i).getRate().get(0)) * Double.valueOf(amount)) / Double.valueOf(toprate));
                 rates[0] = countryArrayList.get(i).getRate().get(0);
                 rates[1] = String.format(Locale.UK, "%.2f", (Double.valueOf(countryArrayList.get(i).getRate().get(0)) * Double.valueOf(amount)) / Double.valueOf(toprate));
                 countryList.get(i).setRate(Arrays.asList(rates));
-                Log.d("okh", "newRate: " + rates[1]);
-                notifyItemChanged(i);
-
             }
+            notifyItemRangeChanged(1, countryArrayList.size());
         }
 
         return amountMutableLiveData;
