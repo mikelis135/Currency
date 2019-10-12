@@ -5,7 +5,7 @@
 
     <data>
         <variable
-            name="currency"
+            name="country"
             type="com.revolut.currency.model.Country" />
         <variable
             name="repository"
@@ -40,7 +40,7 @@
         android:layout_marginEnd="15dp"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
-        android:text="@{currency.currencyName}"
+        android:text="@{country.currencyName}"
         app:layout_constraintLeft_toRightOf="@+id/countryFlag"
         android:gravity="start"/>
 
@@ -50,7 +50,7 @@
         android:layout_height="match_parent"
         android:textColor="@color/grey"
         android:minWidth="50dp"
-        android:text="@{currency.countryName}"
+        android:text="@{country.countryName}"
         android:layout_marginStart="15dp"
         android:letterSpacing="0.05"
         android:fontFamily="sans-serif-condensed-light"
@@ -67,7 +67,7 @@
         android:textColor="@color/grey"
         android:minWidth="80dp"
         android:gravity="center"
-        android:text="@{currency.rate}"
+        android:text="@{country.rate}"
         android:focusableInTouchMode="true"
         android:inputType="number"
         app:layout_constraintEnd_toEndOf="parent"

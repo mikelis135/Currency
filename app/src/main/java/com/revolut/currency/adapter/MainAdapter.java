@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -24,15 +25,23 @@ import com.revolut.currency.OnViewChanged;
 import com.revolut.currency.R;
 import com.revolut.currency.databinding.ListItemBinding;
 import com.revolut.currency.model.Country;
+import com.revolut.currency.repository.CountryRepository;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> implements DraggableItemAdapter<MainAdapter.MyViewHolder> {
 
     private List<Country> countryList;
     private OnViewChanged onViewChanged;
+    private CountryRepository countryRepository;
+    private EditText amountEdit;
+    private MutableLiveData<HashMap<String, String>> amountMutableLiveData = new MutableLiveData<>();
     private String storyUrl = "http://www.geognos.com/api/en/countries/flag/";
-
+    private List<String> amount;
+    private boolean isGotAmount = false;
 
     public MainAdapter(List<Country> countryList, OnViewChanged onViewChanged) {
         setHasStableIds(true);
@@ -60,13 +69,14 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
 
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
-
+        amount = new ArrayList<>();
         Country country = countryList.get(position);
-        holder.listItemBinding.setCurrency(country);
-        final EditText amountEdit = holder.listItemBinding.getRoot().findViewById(R.id.amount);
+        holder.listItemBinding.setCountry(country);
+
+        amountEdit = holder.listItemBinding.getRoot().findViewById(R.id.amount);
         final ImageView countryFlag = holder.listItemBinding.getRoot().findViewById(R.id.countryFlag);
 
-        amountEdit.setSelection(amountEdit.getText().length());
+//        amountEdit.setSelection(amountEdit.getText().length());
         RequestOptions requestOptions = new RequestOptions();
         requestOptions.placeholder(R.drawable.ic_launcher_background);
         requestOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
@@ -89,7 +99,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
             }
         });
 
-        ((EditText) holder.listItemBinding.getRoot().findViewById(R.id.amount)).addTextChangedListener(new TextWatcher() {
+
+        amountEdit.addTextChangedListener(new TextWatcher() {
 
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -98,19 +109,28 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, final int i2) {
-
-                    if (position == 0) {
-                        onViewChanged.onTextChanged(charSequence.toString());
+                if (!isGotAmount) {
+                    isGotAmount = true;
+                    HashMap<String, String> countryHash = new HashMap<>();
+                    countryHash.put(charSequence.toString(), countryList.get(0).getCurrencyName());
+                    amountMutableLiveData.setValue(countryHash);
                 }
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
-
+                        isGotAmount = false;
             }
+
         });
 
+    }
 
+    public MutableLiveData<HashMap<String, String>> getNewCurrencyMutableLiveData() {
+//        amountMutableLiveData.postValue(amount[0]);
+//        amount[0] = amountMutableLiveData.getValue();
+//        Log.d("okh", "onchange "+amount[0]);
+        return amountMutableLiveData;
     }
 
     @Override

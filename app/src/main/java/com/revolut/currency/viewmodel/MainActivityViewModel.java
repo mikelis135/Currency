@@ -14,17 +14,19 @@ public class MainActivityViewModel extends ViewModel {
     private MutableLiveData<List<Country>> currencyMutableLiveData;
     private CountryRepository countryRepository;
 
-    public void init() {
+    public LiveData<List<Country>> init() {
         if (currencyMutableLiveData == null) {
             countryRepository = CountryRepository.getInstance();
-            currencyMutableLiveData = countryRepository.getCurrency("EUR", "10");
+            currencyMutableLiveData = countryRepository.getCountry("EUR", "10");
+            return  currencyMutableLiveData;
         }
         else{
-            return;
+            return currencyMutableLiveData;
         }
     }
 
-    public LiveData<List<Country>> getCurrencyMutableLiveData() {
+    public LiveData<List<Country>> getCurrencyMutableLiveData(String countryTag, String amount) {
+        currencyMutableLiveData = countryRepository.getCountry(countryTag, amount);
         return currencyMutableLiveData;
     }
 
@@ -34,5 +36,14 @@ public class MainActivityViewModel extends ViewModel {
 
     public LiveData<List<Country>> setNewCurrencyMutableLiveData(String amount) {
         return countryRepository.setAmount(amount);
+    }
+
+//    public LiveData<List<Country>> getCurrentCountryMutableLiveData() {
+//
+//        return countryRepository.getCurrentRate();
+//    }
+
+    public LiveData<List<Country>> getCorrespondingRates(String countryTag, String amount) {
+        return countryRepository.getCurrentRate(countryTag, amount);
     }
 }
