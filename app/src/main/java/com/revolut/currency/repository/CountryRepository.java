@@ -125,7 +125,8 @@ public class CountryRepository {
                             Log.d("okh",  countryTag +  " : " + country);
                             countryMutableLiveData.postValue(countryMap);
                             for (int i = 0; i < arrayListCurrency.size() ; i++) {
-                                if (dataSet.get(0).getCurrencyName().equalsIgnoreCase(countryTag)){
+                                String tag = dataSet.get(i).getCurrencyName().substring(0, 2);
+                                if (tag.equalsIgnoreCase(countryTag)){
                                     dataSet.get(i).setCountryName(country);
                                 }
                             }
@@ -139,7 +140,7 @@ public class CountryRepository {
                 } catch (JSONException ex) {
                     ex.printStackTrace();
                 }
-
+                currencyMutableLiveData.postValue(dataSet);
                 countryMutableLiveData.postValue(countryMap);
 
             }
