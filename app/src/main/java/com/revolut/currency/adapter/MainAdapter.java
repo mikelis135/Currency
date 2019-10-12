@@ -30,7 +30,6 @@ import com.revolut.currency.repository.CountryRepository;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> implements DraggableItemAdapter<MainAdapter.MyViewHolder> {
@@ -64,7 +63,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
         amountEdit = holder.listItemBinding.getRoot().findViewById(R.id.amount);
         final ImageView countryFlag = holder.listItemBinding.getRoot().findViewById(R.id.countryFlag);
 
-//        amountEdit.setSelection(amountEdit.getText().length());
         RequestOptions requestOptions = new RequestOptions();
         requestOptions.placeholder(R.drawable.ic_launcher_background);
         requestOptions.diskCacheStrategy(DiskCacheStrategy.ALL);
@@ -103,7 +101,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
                 public void onTextChanged(CharSequence charSequence, int i, int i1, final int i2) {
 
                     if (isGotAmount && !charSequence.toString().isEmpty()){
-                        getCurrentRate(countryList.get(0).getRate().get(0), countryList.get(1).getRate().get(0), charSequence.toString());
+//                        getCurrentRate(countryList.get(0).getRate().get(0), countryList.get(1).getRate().get(0), charSequence.toString());
+                        getCurrentRate(countryList.get(0).getRate().get(0), countryList, charSequence.toString());
                         isGotAmount = false;
                     }
                 }
@@ -115,7 +114,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
 
             });
         }
-
 
     }
 
@@ -136,18 +134,22 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
         return amountMutableLiveData;
     }
 
-    public MutableLiveData<HashMap<String, String>> getCurrentRate(String amountBefore, String rate, String amount) {
+    public MutableLiveData<HashMap<String, String>> getCurrentRate(String toprate, ArrayList<Country> countryArrayList, String amount) {
 
-            String [] rates = new String[2];
+
 
         if (!amount.isEmpty()) {
-            Log.d("okh", "getCurrentRate: (" + Double.valueOf(rate)  +"/"+Double.valueOf(amount)+") * "+ Double.valueOf(amountBefore)+  " = "+(Double.valueOf(rate) * Double.valueOf(amount))/  Double.valueOf(amountBefore));
-            rates[0] = rate;
-            rates[1] = String.format(Locale.UK, "%.2f", (Double.valueOf(rate) * Double.valueOf(amount))/  Double.valueOf(amountBefore));
-            countryList.get(1).setRate(Arrays.asList(rates));
-            Log.d("okh", "ratelist: "+ rates[0]+ " "+ rates[1]);
-            notifyItemChanged(1);
 
+            for (int i = 1; i <countryArrayList.size() ; i++) {
+                String [] rates = new String[2];
+                Log.d("okh", "getCurrentRate: (" + Double.valueOf(countryArrayList.get(i).getRate().get(0)) + "/" + Double.valueOf(amount) + ") * " + Double.valueOf(toprate) + " = " + (Double.valueOf(countryArrayList.get(i).getRate().get(0)) * Double.valueOf(amount)) / Double.valueOf(toprate));
+                rates[0] = countryArrayList.get(i).getRate().get(0);
+                rates[1] = String.format(Locale.UK, "%.2f", (Double.valueOf(countryArrayList.get(i).getRate().get(0)) * Double.valueOf(amount)) / Double.valueOf(toprate));
+                countryList.get(i).setRate(Arrays.asList(rates));
+                Log.d("okh", "newRate: " + rates[1]);
+                notifyItemChanged(i);
+
+            }
         }
 
         return amountMutableLiveData;
