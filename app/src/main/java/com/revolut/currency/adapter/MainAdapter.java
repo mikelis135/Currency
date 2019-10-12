@@ -27,38 +27,27 @@ import com.revolut.currency.databinding.ListItemBinding;
 import com.revolut.currency.model.Country;
 import com.revolut.currency.repository.CountryRepository;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> implements DraggableItemAdapter<MainAdapter.MyViewHolder> {
 
-    private List<Country> countryList;
+    private ArrayList<Country> countryList;
     private OnViewChanged onViewChanged;
     private CountryRepository countryRepository;
     private EditText amountEdit;
     private MutableLiveData<HashMap<String, String>> amountMutableLiveData = new MutableLiveData<>();
     private String storyUrl = "http://www.geognos.com/api/en/countries/flag/";
-    private List<String> amount;
     private boolean isGotAmount = false;
 
-    public MainAdapter(List<Country> countryList, OnViewChanged onViewChanged) {
+    public MainAdapter(ArrayList<Country> countryList, OnViewChanged onViewChanged) {
         setHasStableIds(true);
         this.countryList = countryList;
         this.onViewChanged = onViewChanged;
     }
-
-    class MyViewHolder extends AbstractDraggableItemViewHolder {
-
-        ListItemBinding listItemBinding;
-
-        MyViewHolder(@NonNull ListItemBinding itemView) {
-            super(itemView.getRoot());
-            listItemBinding = itemView;
-        }
-    }
-
 
     @NonNull
     @Override
@@ -69,7 +58,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
 
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
-        amount = new ArrayList<>();
         Country country = countryList.get(position);
         holder.listItemBinding.setCountry(country);
 
@@ -94,44 +82,78 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
 
                 if (position != 0) {
                     onViewChanged.onItemClicked(position);
-                    Log.d("amount", amountEdit.getEditableText().toString());
                 }
+
             }
         });
 
+        if (position == 0) {
+            Log.d("okh", "onBindViewHolder: " +  amountEdit.getEditableText().toString());
 
-        amountEdit.addTextChangedListener(new TextWatcher() {
 
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            amountEdit.addTextChangedListener(new TextWatcher() {
 
-            }
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, final int i2) {
-                if (!isGotAmount) {
-                    isGotAmount = true;
-                    HashMap<String, String> countryHash = new HashMap<>();
-                    countryHash.put(charSequence.toString(), countryList.get(0).getCurrencyName());
-                    amountMutableLiveData.setValue(countryHash);
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
                 }
-            }
 
-            @Override
-            public void afterTextChanged(Editable editable) {
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, final int i2) {
+
+                    if (isGotAmount){
+                        Log.d("okh", "onBindViewHolder: " +  charSequence.toString());
+                        getCurrentRate(countryList.get(1).getRate().get(0), charSequence.toString());
                         isGotAmount = false;
-            }
+                    }
+                }
 
-        });
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    isGotAmount = true;
+                }
 
+            });
+        }
+
+
+    }
+
+
+    class MyViewHolder extends AbstractDraggableItemViewHolder {
+
+        ListItemBinding listItemBinding;
+
+        MyViewHolder(@NonNull ListItemBinding itemView) {
+            super(itemView.getRoot());
+            listItemBinding = itemView;
+
+        }
     }
 
     public MutableLiveData<HashMap<String, String>> getNewCurrencyMutableLiveData() {
-//        amountMutableLiveData.postValue(amount[0]);
-//        amount[0] = amountMutableLiveData.getValue();
-//        Log.d("okh", "onchange "+amount[0]);
+
         return amountMutableLiveData;
     }
+
+    public MutableLiveData<HashMap<String, String>> getCurrentRate(String rate, String amount) {
+
+            String [] rates = new String[2];
+//        currencyList.get(1).getRate().add(realAmount);
+        if (!amount.isEmpty()) {
+            Log.d("okh", "getCurrentRate: " + Double.valueOf(rate)  +" * "+ Double.valueOf(amount)+  " = "+Double.valueOf(rate) * Double.valueOf(amount));
+            rates[0] = rate;
+            rates[1] = String.format(Locale.UK, "%.2f", Double.valueOf(rate) * Double.valueOf(amount));
+            countryList.get(1).setRate(Arrays.asList(rates));
+            Log.d("okh", "ratelist: "+ rates[0]+ " "+ rates[1]);
+            notifyItemChanged(1);
+
+        }
+
+        return amountMutableLiveData;
+    }
+
 
     @Override
     public long getItemId(int position) {

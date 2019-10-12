@@ -3,6 +3,8 @@ package com.revolut.currency;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
@@ -29,8 +31,12 @@ public class MainActivity extends AppCompatActivity {
     MainAdapter mainAdapter;
     MainActivity context;
     private boolean isGotAmount;
+    List<String> amount = new ArrayList<>();
+    List<String> countryTag = new ArrayList<>();
 
-    private List<Country> countryList = new ArrayList<>();
+    private ArrayList<Country> countryList = new ArrayList<>();
+    private String amounts;
+    private String country;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,27 +79,21 @@ public class MainActivity extends AppCompatActivity {
 
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
             recyclerView.setAdapter(mainAdapter);
+            recyclerView.setItemViewCacheSize(countryList.size());
             recyclerView.setItemAnimator(new DefaultItemAnimator());
             recyclerView.setNestedScrollingEnabled(true);
+
 
             mainAdapter.getNewCurrencyMutableLiveData().observe(context, new Observer<HashMap<String, String>>() {
                 @Override
                 public void onChanged(HashMap<String, String> countryHash) {
-                    List<String> keys = new ArrayList<>(countryHash.keySet());
+                    final List<String> keys = new ArrayList<>(countryHash.keySet());
                     Log.d("okh", "onChanged: " + keys.get(0)+ " " + countryHash.get(keys.get(0)));
-                        String amount = keys.get(0);
-                        String countryTag = countryHash.get(keys.get(0));
-                        Log.d("okh", "onChanged: " + amount + countryTag);
-
-                      mainActivityViewModel.getCorrespondingRates(countryTag, amount).observe(context, new Observer<List<Country>>() {
-                          @Override
-                          public void onChanged(List<Country> countries) {
-//                              countryList.addAll(countries);
-//                              mainAdapter.notifyDataSetChanged();
-                          }
-                      });
                 }
+
             });
+
+            mainAdapter.notifyDataSetChanged();
 
         } else {
             mainAdapter.notifyDataSetChanged();

@@ -1,13 +1,15 @@
 package com.revolut.currency.model;
 
+import java.util.List;
+
 public class Country {
 
     private int id;
     private String currencyName;
     private String countryName;
-    private String rate;
+    private List<String> rate;
 
-    public Country(int id, String currencyName, String countryName, String rate) {
+    public Country(int id, String currencyName, String countryName, List<String> rate) {
         this.id = id;
         this.currencyName = currencyName;
         this.countryName = countryName;
@@ -30,11 +32,11 @@ public class Country {
         this.id = id;
     }
 
-    public String getRate() {
+    public List<String> getRate() {
         return rate;
     }
 
-    public void setRate(String rate) {
+    public void setRate(List<String> rate) {
         this.rate = rate;
     }
 

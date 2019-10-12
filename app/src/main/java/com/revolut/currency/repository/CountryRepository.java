@@ -47,10 +47,11 @@ public class CountryRepository {
 
      public MutableLiveData<List<Country>> getCountry(String country, final String amount){
 
-         final int[] id = {0};
          currencyMutableLiveData = new MutableLiveData<>();
 
          rateApi.getRates(country).enqueue(new Callback<Object>() {
+
+             int id = 0;
             @Override
             public void onResponse(Call<Object> call, Response<Object> response) {
 
@@ -73,14 +74,15 @@ public class CountryRepository {
                                 Iterator<String> countries = ratesJson.keys();
 
                                 while (countries.hasNext()) {
-
+                                    List<String> rate  = new ArrayList<>();
                                     String countryTag = countries.next();
-//                                    double rateDouble = Double.valueOf(ratesJson.get(countryTag).toString())/ Double.valueOf(amount);
                                     double rateDouble = Double.valueOf(ratesJson.get(countryTag).toString());
-                                    String rate = String.format(Locale.UK, "%.2f", rateDouble) ;
-                                    id[0] = id[0] + 1;
+                                    rate.add(String.format(Locale.UK, "%.2f", rateDouble));
+                                    rate.add(String.format(Locale.UK, "%.2f", rateDouble));
 
-                                    dataSet.add(new Country(id[0], countryTag,countryTag, rate));
+                                    dataSet.add(new Country(id, countryTag,countryTag, rate));
+                                    id++;
+
                                 }
 
                             }
@@ -93,7 +95,7 @@ public class CountryRepository {
 
                loadJSONFromAsset(dataSet);
 
-                }
+            }
             @Override
             public void onFailure(Call<Object> call, Throwable t) {
                 Log.d("okh", "onResponse: "+ t.getMessage());
@@ -156,40 +158,20 @@ public class CountryRepository {
         return getCountry(country, amount);
     }
 
-    public MutableLiveData<List<Country>> setAmount(String amount){
+    public MutableLiveData<List<Country>> setAmount(String countryTag, String amount){
 
-        for (int i = 0; i < dataSet.size(); i++) {
-
-            Double rate = Double.valueOf(dataSet.get(i).getRate());
-            try {
-                dataSet.get(i).setRate(String.valueOf(Integer.valueOf(amount) * rate.intValue()));
-            }catch (Exception e){
-                dataSet.get(i).setRate("");
-            }
-
-        }
+//        for (int i = 0; i < dataSet.size(); i++) {
+//            double newRate = Double.valueOf(dataSet.get(i).getRate().get(0)) * Double.valueOf(amount);
+//            String amountString = String.format(Locale.UK, "%.2f", newRate) ;
+//            rate.add(0, amountString);
+//            dataSet.get(i).setRate(rate);
+//
+//        }
 
         currencyMutableLiveData = new MutableLiveData<>();
         currencyMutableLiveData.setValue(dataSet);
         return currencyMutableLiveData;
     }
 
-    public LiveData<List<Country>> getCurrentRate(String countryTag, String amount) {
 
-        if (!isGotAmount) {
-            isGotAmount = true;
-
-            for (int i = 0; i < dataSet.size(); i++) {
-                if (dataSet.get(i).getCurrencyName().equalsIgnoreCase(countryTag)) {
-                    double newRate = Double.valueOf(dataSet.get(i).getRate()) * Double.valueOf(amount);
-                    String amountString = String.format(Locale.UK, "%.2f", newRate) ;
-                    dataSet.get(i).setRate(amountString);
-                    Log.d("okh", "getCurrentRate: "+ amountString);
-                    currencyMutableLiveData.setValue(dataSet);
-                }
-            }
-            return currencyMutableLiveData;
-        }
-        return currencyMutableLiveData;
-    }
 }
