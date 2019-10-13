@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        EventBus.getDefault().register(this);
+
         mainActivityViewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
         setContentView(R.layout.activity_main);
         recyclerView = findViewById(R.id.recycler_view);
@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void startServiceForGettingRates(String countryTag, String amount) {
         Intent intent = new Intent(context, RateService.class);
-        this.context.stopService(intent);
         intent.putExtra("countryTag", countryTag);
         intent.putExtra("amount", amount);
 
