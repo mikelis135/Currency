@@ -1,5 +1,8 @@
 package com.revolut.currency;
 
+import android.app.ActivityManager;
+import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -7,6 +10,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -16,8 +20,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.revolut.currency.adapter.MainAdapter;
 import com.revolut.currency.model.Country;
+import com.revolut.currency.model.EventMesage;
 import com.revolut.currency.remote.RateService;
 import com.revolut.currency.viewmodel.MainActivityViewModel;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+//        EventBus.getDefault().register(this);
         mainActivityViewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
         setContentView(R.layout.activity_main);
         recyclerView = findViewById(R.id.recycler_view);
@@ -47,9 +55,9 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onChanged(List<Country> countries) {
+                startServiceForGettingRates(countries.get(0).getCurrencyName(), countries.get(0).getRate().get(1));
                 countryList.addAll(countries);
                 mainAdapter.notifyDataSetChanged();
-
             }
 
         });
@@ -58,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     private void setupRecyclerView() {
         if (mainAdapter == null) {
 
@@ -65,9 +74,13 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onItemClicked(int position) {
+                    context.stopService(new Intent(context, RateService.class));
                     Country movedItem = countryList.remove(position);
                     countryList.add(0, movedItem);
+                    Log.d("okh", "onItemClicked: " + countryList.get(0).getCurrencyName() + " "+ countryList.get(0).getRate());
                     mainAdapter.notifyDataSetChanged();
+
+
                 }
             });
 
@@ -77,31 +90,47 @@ public class MainActivity extends AppCompatActivity {
             recyclerView.setItemAnimator(new DefaultItemAnimator());
             recyclerView.setNestedScrollingEnabled(true);
 
-
-            mainAdapter.getNewCurrencyMutableLiveData().observe(context, new Observer<HashMap<String, String>>() {
-                @Override
-                public void onChanged(HashMap<String, String> countryHash) {
-                    final List<String> keys = new ArrayList<>(countryHash.keySet());
-                    Log.d("okh", "onChanged: " + keys.get(0)+ " " + countryHash.get(keys.get(0)));
-                }
-
-            });
-
             mainAdapter.notifyDataSetChanged();
+//            startServiceForGettingRates(countryList.get(0).getCurrencyName());
 
         } else {
             mainAdapter.notifyDataSetChanged();
         }
     }
 
+
+    private void startServiceForGettingRates(String countryTag, String amount) {
+        Intent intent = new Intent(context, RateService.class);
+        this.context.stopService(intent);
+        intent.putExtra("countryTag", countryTag);
+        intent.putExtra("amount", amount);
+
+        this.context.startService(intent);
+    }
+
+    @Subscribe
+    public void stopServiceForGettingRates() {
+        Intent intent = new Intent(context, RateService.class);
+        this.context.stopService(intent);
+    }
+
     @Override
     public void onBackPressed() {
-        stopService(new Intent(this, RateService.class));
+//        stopService(new Intent(this, RateService.class));
         recyclerView.removeAllViewsInLayout();
         recyclerView.removeAllViews();
         countryList.clear();
 
         super.onBackPressed();
+    }
+
+    public void onStart() {
+        super.onStart();
+
+    }
+    public void onStop(){
+        super.onStop();
+//        EventBus.getDefault().unregister(this);
     }
 
     @Override

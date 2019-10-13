@@ -30,20 +30,4 @@ public class MainActivityViewModel extends ViewModel {
         return currencyMutableLiveData;
     }
 
-    public LiveData<List<Country>> getNewCurrencyMutableLiveData(String country, String amount) {
-        return countryRepository.getNewCurrency(country, amount);
-    }
-
-//    public LiveData<List<Country>> setNewCurrencyMutableLiveData(String amount) {
-//        return countryRepository.setAmount(amount);
- //   }
-
-//    public LiveData<List<Country>> getCurrentCountryMutableLiveData() {
-//
-//        return countryRepository.getCurrentRate();
-//    }
-
-    public LiveData<List<Country>> getCorrespondingRates(String countryTag, String amount) {
-        return countryRepository.setAmount(countryTag, amount);
-    }
 }

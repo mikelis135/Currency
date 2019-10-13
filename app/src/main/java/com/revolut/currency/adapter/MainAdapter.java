@@ -122,11 +122,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
         }
     }
 
-    public MutableLiveData<HashMap<String, String>> getNewCurrencyMutableLiveData() {
-
-        return amountMutableLiveData;
-    }
-
     public MutableLiveData<HashMap<String, String>> getCurrentRate(String toprate, ArrayList<Country> countryArrayList, String amount) {
 
         if (!amount.isEmpty()) {

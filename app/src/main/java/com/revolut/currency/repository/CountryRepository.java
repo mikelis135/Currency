@@ -2,7 +2,6 @@ package com.revolut.currency.repository;
 
 import android.util.Log;
 
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.gson.Gson;
@@ -93,7 +92,7 @@ public class CountryRepository {
 
                 currencyMutableLiveData.postValue(dataSet);
 
-               loadJSONFromAsset(dataSet);
+               getCountryNames(dataSet);
 
             }
             @Override
@@ -106,7 +105,7 @@ public class CountryRepository {
         return currencyMutableLiveData;
     }
 
-    private void loadJSONFromAsset(final ArrayList arrayListCurrency) {
+    private void getCountryNames(final ArrayList arrayListCurrency) {
 
         countryApi.getCountries().enqueue(new Callback<Object>() {
 

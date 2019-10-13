@@ -61,4 +61,7 @@ dependencies {
 
     //Image Remote Loader
     implementation 'com.github.bumptech.glide:glide:4.8.0'
+
+    //service
+    implementation 'org.greenrobot:eventbus:3.1.1'
 }
