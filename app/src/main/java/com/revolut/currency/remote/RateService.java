@@ -1,30 +1,26 @@
 package com.revolut.currency.remote;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 
 import com.revolut.currency.model.Country;
-import com.revolut.currency.model.EventMesage;
 import com.revolut.currency.repository.CountryRepository;
 
-import org.greenrobot.eventbus.EventBus;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class RateService extends Service {
 
+    public final static String MY_ACTION = "MY_ACTION";
+    private MutableLiveData<List<Country>> mutableLiveData;
     private CountryRepository countryRepository;
     Timer timer;
-    String countryTag, amount;
-    private Context context;
 
     @Nullable
     @Override
@@ -32,11 +28,6 @@ public class RateService extends Service {
         return null;
     }
 
-    public void onEvent(EventMesage eventMesage){
-        countryTag = eventMesage.getCountryTag();
-        amount = eventMesage.getAmount();
-        Log.d("okh", "eventMessage: "+ eventMesage.getCountryTag() +" "+ eventMesage.getAmount());
-    }
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
@@ -46,11 +37,22 @@ public class RateService extends Service {
         TimerTask myTask = new TimerTask() {
             @Override
             public void run() {
-                countryTag = intent.getStringExtra("countryTag");
-                amount = intent.getStringExtra("amount");
-                Log.d("okh", "onStartCommand: " + countryTag + " " + amount);
+                mutableLiveData = null;
+                mutableLiveData = getNewCurrencyMutableLiveData("EUR", "1");
+                Intent intent = new Intent();
+                intent.setAction(MY_ACTION);
+                try {
+                    Thread.sleep(2000);
+                    if (mutableLiveData !=null ) {
+                        if (mutableLiveData.getValue()!= null) {
+                            intent.putExtra("DATAPASSED", new ArrayList<>(mutableLiveData.getValue()));
+                            sendBroadcast(intent);
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-                getNewCurrencyMutableLiveData(countryTag, amount);
             }
         };
 
@@ -61,8 +63,6 @@ public class RateService extends Service {
 
     @Override
     public void onStart(Intent intent, int startId) {
-        EventBus.getDefault().register(this);
-        context = this;
         super.onStart(intent, startId);
     }
 
@@ -71,6 +71,13 @@ public class RateService extends Service {
         countryRepository = CountryRepository.getInstance();
        return countryRepository.getCountry(countryTag, amount);
     }
+
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
+
 
     @Override
     public void onDestroy() {

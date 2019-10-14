@@ -1,18 +1,15 @@
 package com.revolut.currency;
 
-import android.app.ActivityManager;
-import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -21,25 +18,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.revolut.currency.adapter.MainAdapter;
 import com.revolut.currency.model.Country;
-import com.revolut.currency.model.EventMesage;
 import com.revolut.currency.remote.RateService;
 import com.revolut.currency.viewmodel.MainActivityViewModel;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ServiceCallback {
 
     private MainActivityViewModel mainActivityViewModel;
     RecyclerView recyclerView;
     MainAdapter mainAdapter;
     MainActivity context;
     ProgressBar progressBar;
+    private RateService rateService;
+    private boolean bound = false;
+    MyReceiver mMessageReceiver;
 
     private ArrayList<Country> countryList = new ArrayList<>();
 
@@ -47,27 +42,32 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mainActivityViewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
         setContentView(R.layout.activity_main);
         recyclerView = findViewById(R.id.recycler_view);
         progressBar = findViewById(R.id.progressBar);
 
         context = this;
 
+        setUpData();
+
+        setupRecyclerView();
+
+    }
+
+    public void setUpData() {
+        mainActivityViewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
         mainActivityViewModel.init().observe(this, new Observer<List<Country>>() {
 
             @Override
             public void onChanged(List<Country> countries) {
+
                 progressBar.setVisibility(View.GONE);
-                startServiceForGettingRates(countries.get(0).getCurrencyName(), countries.get(0).getRate().get(1));
+//                startServiceForGettingRates("EUR", "1");
                 countryList.addAll(countries);
                 mainAdapter.notifyDataSetChanged();
             }
 
         });
-
-        setupRecyclerView();
-
     }
 
 
@@ -100,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             mainAdapter.notifyDataSetChanged();
         }
+
     }
 
 
@@ -107,19 +108,11 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(context, RateService.class);
         intent.putExtra("countryTag", countryTag);
         intent.putExtra("amount", amount);
-
         this.context.startService(intent);
-    }
-
-    @Subscribe
-    public void stopServiceForGettingRates() {
-        Intent intent = new Intent(context, RateService.class);
-        this.context.stopService(intent);
     }
 
     @Override
     public void onBackPressed() {
-//        stopService(new Intent(this, RateService.class));
         recyclerView.removeAllViewsInLayout();
         recyclerView.removeAllViews();
         countryList.clear();
@@ -128,12 +121,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onStart() {
+        mMessageReceiver = new MyReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(RateService.MY_ACTION);
+        registerReceiver(mMessageReceiver, intentFilter);
+
+        //Start our own service
+//        Intent intent = new Intent(MainActivity.this,
+//                RateService.class);
+//        startService(intent);
         super.onStart();
 
     }
     public void onStop(){
         super.onStop();
-//        EventBus.getDefault().unregister(this);
+        unregisterReceiver(mMessageReceiver);
     }
 
     @Override
@@ -142,4 +144,37 @@ public class MainActivity extends AppCompatActivity {
         super.finish();
     }
 
+    @Override
+    public void getCountry(String country, String amount) {
+
+        if (bound) {
+            mainActivityViewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
+            mainActivityViewModel.init().observe(this, new Observer<List<Country>>() {
+
+                @Override
+                public void onChanged(List<Country> countries) {
+                    countryList.addAll(countries);
+                    mainAdapter.notifyDataSetChanged();
+                }
+
+            });
+        }
+    }
+
+
+    private class MyReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context arg0, Intent arg1) {
+            // TODO Auto-generated method stub
+            Bundle bundle = arg1.getExtras();
+            List<Country> countries = (List<Country>) bundle.getSerializable("DATAPASSED");
+            Log.d("okh", "onReceive: " + countries.get(0).getRate());
+            countryList.removeAll(countries);
+            countryList.addAll(countries);
+            mainAdapter.notifyDataSetChanged();
+
+        }
+
+    }
 }
