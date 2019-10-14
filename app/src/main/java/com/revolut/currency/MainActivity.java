@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LifecycleOwner;
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     MainAdapter mainAdapter;
     MainActivity context;
+    ProgressBar progressBar;
 
     private ArrayList<Country> countryList = new ArrayList<>();
 
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         mainActivityViewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
         setContentView(R.layout.activity_main);
         recyclerView = findViewById(R.id.recycler_view);
+        progressBar = findViewById(R.id.progressBar);
 
         context = this;
 
@@ -55,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onChanged(List<Country> countries) {
+                progressBar.setVisibility(View.GONE);
                 startServiceForGettingRates(countries.get(0).getCurrencyName(), countries.get(0).getRate().get(1));
                 countryList.addAll(countries);
                 mainAdapter.notifyDataSetChanged();

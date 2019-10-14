@@ -126,13 +126,18 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MyViewHolder> 
 
         if (!amount.isEmpty()) {
 
+
             for (int i = 1; i <countryArrayList.size() ; i++) {
                 String [] rates = new String[2];
                 rates[0] = countryArrayList.get(i).getRate().get(0);
                 rates[1] = String.format(Locale.UK, "%.2f", (Double.valueOf(countryArrayList.get(i).getRate().get(0)) * Double.valueOf(amount)) / Double.valueOf(toprate));
                 countryList.get(i).setRate(Arrays.asList(rates));
             }
-            notifyItemRangeChanged(1, countryArrayList.size());
+            try {
+                notifyItemRangeChanged(1, countryArrayList.size());
+            }catch (Exception e){
+
+            }
         }
 
         return amountMutableLiveData;
